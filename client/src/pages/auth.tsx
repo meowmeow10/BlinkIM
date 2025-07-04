@@ -7,6 +7,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+
+export default function AuthPage() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    displayName: "",
+  });
+
+  const { toast } = useToast();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();  // Prevent default form submission
+
+    if (!formData.email || !formData.password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    authMutation.mutate(formData);
+  };
+
+  const authMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+      return apiRequest("POST", endpoint, data);
+    },
+    onSuccess: () => {
+      // Handle success
+    },
+    onError: (error: any) => {
+      // Handle error
+    },
+  });
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* form fields */}
+      <button type="submit">Sign In</button>
+    </form>
+  );
+}
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
