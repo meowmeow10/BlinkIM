@@ -27,11 +27,21 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(import.meta.dirname, "client", "index.html"),
+      },
+    },
   },
   server: {
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
+    watch: {
+      usePolling: true,
+    },
+    host: '0.0.0.0', // Use this instead of 'localhost' to avoid binding issues
+    port: 3000, // Adjust to Replit's requirements if needed
   },
 });
