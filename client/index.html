@@ -3,10 +3,206 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Messaging Platform</title>
+    <meta name="description" content="Real-time messaging platform with DMs, chat rooms, and push notifications">
+    <link rel="stylesheet" href="/src/styles.css">
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <!-- Authentication Forms -->
+    <div id="auth-container" class="auth-container">
+      <div class="auth-forms">
+        <div class="auth-header">
+          <h1>Messaging Platform</h1>
+          <p>Connect with friends and join chat rooms</p>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active">
+          <h2>Sign In</h2>
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required>
+          </div>
+          <button type="submit">Sign In</button>
+          <p class="auth-switch">
+            Don't have an account? <a href="#" id="show-register">Sign Up</a>
+          </p>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="auth-form">
+          <h2>Sign Up</h2>
+          <div class="form-group">
+            <label for="register-email">Email</label>
+            <input type="email" id="register-email" required>
+          </div>
+          <div class="form-group">
+            <label for="register-password">Password</label>
+            <input type="password" id="register-password" required>
+          </div>
+          <div class="form-group">
+            <label for="register-display-name">Display Name</label>
+            <input type="text" id="register-display-name" required>
+          </div>
+          <button type="submit">Sign Up</button>
+          <p class="auth-switch">
+            Already have an account? <a href="#" id="show-login">Sign In</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app-container" class="app-container hidden">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="user-profile">
+            <img id="user-avatar" src="/default-avatar.svg" alt="Profile" class="avatar">
+            <div class="user-info">
+              <span id="user-name">User</span>
+              <span id="user-status" class="status online">Online</span>
+            </div>
+          </div>
+          <button id="settings-btn" class="icon-btn">⚙️</button>
+        </div>
+
+        <div class="sidebar-content">
+          <!-- Friends List -->
+          <div class="section">
+            <h3>Friends</h3>
+            <div id="friends-list" class="friends-list"></div>
+            <button id="add-friend-btn" class="add-btn">Add Friend</button>
+          </div>
+
+          <!-- Chat Rooms -->
+          <div class="section">
+            <h3>Chat Rooms</h3>
+            <div id="chat-rooms-list" class="chat-rooms-list"></div>
+            <button id="create-room-btn" class="add-btn">Create Room</button>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <button id="logout-btn" class="logout-btn">Logout</button>
+        </div>
+      </div>
+
+      <!-- Main Chat Area -->
+      <div class="chat-area">
+        <div id="chat-header" class="chat-header">
+          <div class="chat-info">
+            <span id="chat-title">Select a conversation</span>
+            <span id="chat-subtitle"></span>
+          </div>
+          <div class="chat-actions">
+            <button id="notification-btn" class="icon-btn">🔔</button>
+            <button id="info-btn" class="icon-btn">ℹ️</button>
+          </div>
+        </div>
+
+        <div id="messages-container" class="messages-container">
+          <div id="messages-list" class="messages-list"></div>
+        </div>
+
+        <div id="message-input-container" class="message-input-container">
+          <input type="text" id="message-input" placeholder="Type a message..." disabled>
+          <button id="send-btn" class="send-btn" disabled>Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <!-- Settings Modal -->
+      <div id="settings-modal" class="modal hidden">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-content">
+          <div class="form-group">
+            <label for="settings-display-name">Display Name</label>
+            <input type="text" id="settings-display-name">
+          </div>
+          <div class="form-group">
+            <label for="settings-profile-picture">Profile Picture</label>
+            <input type="file" id="settings-profile-picture" accept="image/*">
+          </div>
+          <div class="form-group">
+            <label for="settings-notifications">Notifications</label>
+            <select id="settings-notifications">
+              <option value="all">All messages</option>
+              <option value="mentions">Mentions only</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="save-settings-btn" class="primary-btn">Save Changes</button>
+          <button class="secondary-btn close-btn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Add Friend Modal -->
+      <div id="add-friend-modal" class="modal hidden">
+        <div class="modal-header">
+          <h2>Add Friend</h2>
+          <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-content">
+          <div class="form-group">
+            <label for="friend-email">Friend's Email</label>
+            <input type="email" id="friend-email" placeholder="Enter email address">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="send-friend-request-btn" class="primary-btn">Send Request</button>
+          <button class="secondary-btn close-btn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Create Room Modal -->
+      <div id="create-room-modal" class="modal hidden">
+        <div class="modal-header">
+          <h2>Create Chat Room</h2>
+          <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-content">
+          <div class="form-group">
+            <label for="room-name">Room Name</label>
+            <input type="text" id="room-name" placeholder="Enter room name">
+          </div>
+          <div class="form-group">
+            <label for="room-description">Description</label>
+            <textarea id="room-description" placeholder="Enter room description"></textarea>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="room-private"> Private Room
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="create-room-submit-btn" class="primary-btn">Create Room</button>
+          <button class="secondary-btn close-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Audio for notifications -->
+    <audio id="notification-sound" preload="auto">
+      <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+L..."></source>
+    </audio>
+
+    <script src="/src/app.js"></script>
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>

@@ -24,9 +24,16 @@ const upload = multer({
 
 // Session configuration
 const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+
+// Clean the DATABASE_URL if it has psql command wrapper
+let connectionString = process.env.DATABASE_URL!;
+if (connectionString.includes('psql ')) {
+  connectionString = connectionString.replace(/^psql\s*'([^']+)'.*/, '$1');
+}
+
 const pgStore = connectPg(session);
 const sessionStore = new pgStore({
-  conString: process.env.DATABASE_URL,
+  conString: connectionString,
   createTableIfMissing: true,
   ttl: sessionTtl,
   tableName: "sessions",
@@ -173,6 +180,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Avatar upload error:", error);
       res.status(500).json({ message: "Avatar upload failed" });
+    }
+  });
+
+  app.post('/api/user/profile-picture', requireAuth, upload.single('profilePicture'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const profilePicturePath = `/uploads/${req.file.filename}`;
+      const updatedUser = await storage.updateUser(req.session.userId, {
+        profilePicture: profilePicturePath,
+      });
+      
+      res.json({ profilePicture: profilePicturePath });
+    } catch (error) {
+      console.error("Profile picture upload error:", error);
+      res.status(500).json({ message: "Profile picture upload failed" });
+    }
+  });
+
+  app.patch('/api/user/profile', requireAuth, async (req: any, res) => {
+    try {
+      const updates = req.body;
+      const updatedUser = await storage.updateUser(req.session.userId, updates);
+      const { password, ...userWithoutPassword } = updatedUser;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error("Profile update error:", error);
+      res.status(500).json({ message: "Profile update failed" });
     }
   });
 

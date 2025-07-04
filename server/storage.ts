@@ -232,7 +232,7 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
-  async getChatRoomMembers(chatRoomId: number): Promise<User[]> {
+  async getChatRoomMembers(chatRoomId: number): Promise<Omit<User, 'password'>[]> {
     const members = await db
       .select({
         id: users.id,
@@ -258,7 +258,7 @@ export class DatabaseStorage implements IStorage {
     return newFriendship;
   }
 
-  async getFriends(userId: number): Promise<User[]> {
+  async getFriends(userId: number): Promise<Omit<User, 'password'>[]> {
     const friends = await db
       .select({
         id: users.id,
@@ -281,7 +281,7 @@ export class DatabaseStorage implements IStorage {
     return friends;
   }
 
-  async getFriendRequests(userId: number): Promise<User[]> {
+  async getFriendRequests(userId: number): Promise<Omit<User, 'password'>[]> {
     const requests = await db
       .select({
         id: users.id,
